@@ -1,0 +1,42 @@
+#!/bin/bash
+
+set -euo pipefail
+
+which create-dmg || {
+	echo "Please install create-dmg: brew install create-dmg"
+	exit 1
+}
+
+#notarytool store-credentials "screensaver-notary-credentials" --apple-id "<AppleID>" --team-id <DeveloperTeamID>
+
+rm -r build
+xcodebuild -project ConwayWatercolor.xcodeproj -target ConwayWatercolor
+
+stat "build/Release/ConwayWatercolor.saver"
+
+[ -d 'build/iconset' ] || mkdir build/saver.iconset
+
+cp saver-logo.png build/saver.iconset/icon_512x512@2x.png
+sips -z 512 512 saver-logo.png --out build/saver.iconset/icon_512x512.png
+cp build/saver.iconset/icon_{512x512,256x256@2x}.png
+sips -z 256 256 saver-logo.png --out build/saver.iconset/icon_256x256.png
+cp build/saver.iconset/icon_{256x256,128x128@2x}.png
+sips -z 128 128 saver-logo.png --out build/saver.iconset/icon_128x128.png
+sips -z 64 64 saver-logo.png --out build/saver.iconset/icon_32x32@2x.png
+sips -z 32 32 saver-logo.png --out build/saver.iconset/icon_32x32.png
+cp build/saver.iconset/icon_{32x32,16x16@2x}.png
+sips -z 16 16 saver-logo.png --out build/saver.iconset/icon_16x15.png
+
+iconutil -c icns build/saver.iconset
+sips -i build/saver.icns
+DeRez -only icns build/saver.icns > build/saver.rsrc
+SetFile -a C "build/Release/ConwayWatercolor.saver"
+
+touch build/Release/ConwayWatercolor.saver/$'Icon\r'
+Rez -append build/saver.rsrc -o build/Release/ConwayWatercolor.saver/Icon?
+SetFile -a V build/Release/ConwayWatercolor.saver/Icon?
+
+mkdir build/dmg_contents
+cp -r "build/Release/ConwayWatercolor.saver" "build/dmg_contents/Conway Watercolor.saver"
+
+create-dmg --volname "Conway Watercolor" --volicon build/saver.icns --background dmgbackground.png  --hide-extension "Conway Watercolor.saver" --window-size 400 300 --icon "Conway Watercolor.saver" 200 100  --codesign 94F41681BA5ADAF0E1715A65AE2AA8B445DC76D1 --notarize screensaver-notary-credentials "build/Conway Watercolor.dmg" build/dmg_contents
