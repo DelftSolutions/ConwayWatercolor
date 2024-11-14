@@ -535,6 +535,7 @@
 					"@loader_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 11.5;
+				"OTHER_CODE_SIGN_FLAGS[sdk=*]" = "--timestamp";
 				PRODUCT_BUNDLE_IDENTIFIER = nl.maxmaton.ConwayWatercolor;
 				PRODUCT_NAME = ConwayWatercolor;
 				PROVISIONING_PROFILE_SPECIFIER = "";

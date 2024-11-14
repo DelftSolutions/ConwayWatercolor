@@ -175,7 +175,7 @@ class ConwayWatercolorView : ScreenSaverView, MTKViewDelegate {
     @objc func screenIsUnlocked(_ aNotification: Notification)
     {
 #if !NO_SCREENSAVER_EXIT
-        if !isPreview {
+        if !inConfig && !isPreview {
             exit(0)
         }
 #endif
